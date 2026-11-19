@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Password Manager</title>
+
+<style>
+
+body{
+font-family:Arial,sans-serif;
+background:#f4f4f4;
+margin:0;
+padding:0;
+}
+
+header{
+background:#800000;
+color:white;
+text-align:center;
+padding:20px;
+font-size:30px;
+}
+
+.container{
+width:90%;
+max-width:1000px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+margin-top:20px;
+border-radius:10px;
+box-shadow:0px 0px 5px gray;
+}
+
+input{
+width:100%;
+padding:10px;
+margin-top:10px;
+box-sizing:border-box;
+}
+
+button{
+background:#800000;
+color:white;
+border:none;
+padding:10px;
+margin-top:10px;
+cursor:pointer;
+}
+
+button:hover{
+background:#a52a2a;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+table,th,td{
+border:1px solid gray;
+}
+
+th,td{
+padding:10px;
+text-align:center;
+}
+
+.dark{
+background:#121212;
+color:white;
+}
+
+.dark .card{
+background:#1f1f1f;
+color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>Password Manager</header>
+
+<div class="container">
+
+<div class="card">
+
+<h2>User Registration</h2>
+
+<input type="text" id="regUser" placeholder="Username">
+
+<input type="password" id="regPass" placeholder="Password">
+
+<button onclick="registerUser()">Register</button>
+
+<p id="registerMsg"></p>
+
+</div>
+
+<div class="card">
+
+<h2>User Login</h2>
+
+<input type="text" id="loginUser" placeholder="Username">
+
+<input type="password" id="loginPass" placeholder="Password">
+
+<button onclick="loginUser()">Login</button>
+
+<p id="loginMsg"></p>
+
+<button onclick="toggleDarkMode()">
+Dark Mode
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>Phone OTP Verification</h2>
+
+<input type="text"
+id="phone"
+placeholder="Enter Phone Number">
+
+<button onclick="sendOTP()">
+Generate OTP
+</button>
+
+<input type="text"
+id="otpInput"
+placeholder="Enter OTP">
+
+<button onclick="verifyOTP()">
+Verify OTP
+</button>
+
+<p id="otpMessage"></p>
+
+</div>
+
+<div class="card">
+
+<h2>Password Generator</h2>
+
+<button onclick="generatePassword()">
+Generate Password
+</button>
+
+<p id="generatedPassword"></p>
+
+</div>
+
+<div class="card">
+
+<h2>Password Strength Analyzer</h2>
+
+<input type="password"
+id="strengthPass"
+onkeyup="checkStrength()">
+
+<p id="strength"></p>
+
+</div>
+
+<div class="card">
+
+<h2>Save Password</h2>
+
+<input type="text"
+id="website"
+placeholder="Website">
+
+<input type="text"
+id="user"
+placeholder="Username">
+
+<input type="password"
+id="password"
+placeholder="Password">
+
+<button onclick="savePassword()">
+Save Password
+</button>
+
+<input type="text"
+id="search"
+placeholder="Search Website"
+onkeyup="searchPassword()">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Website</th>
+<th>Username</th>
+<th>Password</th>
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="passwordTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="card">
+
+<h2>Password Recovery</h2>
+
+<input type="email"
+id="recoveryEmail"
+placeholder="Enter Email">
+
+<button onclick="recoverPassword()">
+Recover Password
+</button>
+
+<p id="recoveryResult"></p>
+
+</div>
+
+<div class="card">
+
+<h2>Biometric Login</h2>
+
+<button onclick="biometricLogin()">
+Fingerprint Login
+</button>
+
+<p id="bioMsg"></p>
+
+</div>
+
+<div class="card">
+
+<h2>Cloud Backup</h2>
+
+<button onclick="cloudBackup()">
+Backup Passwords
+</button>
+
+<p id="backupResult"></p>
+
+
+</div>
+
+</div>
+
+<script>
+
+let generatedOTP = "";
+
+function registerUser(){
+
+let user =
+document.getElementById("regUser").value;
+
+let pass =
+document.getElementById("regPass").value;
+
+if(user==="" || pass===""){
+
+document.getElementById("registerMsg").innerHTML =
+"Please fill all fields";
+
+document.getElementById("registerMsg").style.color =
+"red";
+
+return;
+}
+
+localStorage.setItem("username",user);
+localStorage.setItem("password",pass);
+
+document.getElementById("registerMsg").innerHTML =
+"✓ Registration Successful";
+
+document.getElementById("registerMsg").style.color =
+"green";
+
+}
+
+function loginUser(){
+
+let user =
+document.getElementById("loginUser").value;
+
+let pass =
+document.getElementById("loginPass").value;
+
+let savedUser =
+localStorage.getItem("username");
+
+let savedPass =
+localStorage.getItem("password");
+
+if(user==="" || pass===""){
+
+document.getElementById("loginMsg").innerHTML =
+"Please fill all fields";
+
+document.getElementById("loginMsg").style.color =
+"red";
+
+return;
+}
+
+if(user===savedUser && pass===savedPass){
+
+document.getElementById("loginMsg").innerHTML =
+"✓ Login Successful";
+
+document.getElementById("loginMsg").style.color =
+"green";
+
+}
+else{
+
+document.getElementById("loginMsg").innerHTML =
+"Invalid Username or Password";
+
+document.getElementById("loginMsg").style.color =
+"red";
+
+}
+
+}
+
+
+function toggleDarkMode(){
+
+document.body.classList.toggle("dark");
+}
+
+function sendOTP(){
+
+let phone =
+document.getElementById("phone").value;
+
+if(phone===""){
+
+alert("Enter Phone Number");
+return;
+}
+
+generatedOTP =
+Math.floor(100000+Math.random()*900000);
+
+document.getElementById("otpMessage").innerHTML =
+"Generated OTP : " + generatedOTP;
+}
+
+function verifyOTP(){
+
+let otp =
+document.getElementById("otpInput").value;
+
+if(otp == generatedOTP){
+
+document.getElementById("otpMessage").innerHTML =
+"OTP Verified Successfully";
+
+}else{
+
+document.getElementById("otpMessage").innerHTML =
+"Invalid OTP";
+}
+}
+
+function generatePassword(){
+
+let chars =
+"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%";
+
+let pass = "";
+
+for(let i=0;i<12;i++){
+
+pass += chars.charAt(
+Math.floor(Math.random()*chars.length)
+);
+
+}
+
+document.getElementById("generatedPassword").innerHTML =
+pass;
+}
+
+function checkStrength(){
+
+let pass =
+document.getElementById("strengthPass").value;
+
+let result = "";
+
+if(pass.length < 6){
+
+result = "Weak Password";
+
+}else if(pass.length < 10){
+
+result = "Medium Password";
+
+}else{
+
+result = "Strong Password";
+}
+
+document.getElementById("strength").innerHTML =
+result;
+}
+
+function savePassword(){
+
+let website =
+document.getElementById("website").value;
+
+let user =
+document.getElementById("user").value;
+
+let password =
+document.getElementById("password").value;
+
+if(website==="" ||
+user==="" ||
+password===""){
+
+alert("Fill all fields");
+return;
+}
+
+let table =
+document.getElementById("passwordTable");
+
+let row =
+table.insertRow();
+
+row.insertCell(0).innerHTML = website;
+row.insertCell(1).innerHTML = user;
+row.insertCell(2).innerHTML = password;
+
+row.insertCell(3).innerHTML =
+'<button onclick="deleteRow(this)">Delete</button>';
+}
+
+function deleteRow(btn){
+
+let row =
+btn.parentNode.parentNode;
+
+row.parentNode.removeChild(row);
+}
+
+function searchPassword(){
+
+let input =
+document.getElementById("search")
+.value.toLowerCase();
+
+let rows =
+document.getElementById("passwordTable")
+.getElementsByTagName("tr");
+
+for(let i=0;i<rows.length;i++){
+
+let website =
+rows[i].cells[0].innerHTML.toLowerCase();
+
+if(website.indexOf(input)>-1){
+
+rows[i].style.display="";
+
+}else{
+
+rows[i].style.display="none";
+}
+}
+}
+
+function recoverPassword(){
+
+let email =
+document.getElementById("recoveryEmail").value;
+
+document.getElementById("recoveryResult").innerHTML =
+"Recovery link sent to " + email;
+}
+
+function biometricLogin(){
+
+document.getElementById("bioMsg").innerHTML =
+"Scanning Fingerprint...";
+
+document.getElementById("bioMsg").style.color =
+"blue";
+
+setTimeout(function(){
+
+document.getElementById("bioMsg").innerHTML =
+"✓ Fingerprint Authentication Successful";
+
+document.getElementById("bioMsg").style.color =
+"green";
+
+},2000);
+
+}
+
+function cloudBackup(){
+
+document.getElementById("backupResult").innerHTML =
+"Passwords Backed Up Successfully (Demo)";
+}
+
+
+</script>
+
+</body>
+</html>
